@@ -68,6 +68,9 @@ if __name__=='__main__':
     # Loss functions: https://www.tensorflow.org/api_docs/python/tf/keras/losses 
     # Metrics: https://www.tensorflow.org/api_docs/python/tf/keras/metrics 
 
+    # We used the sparse_categorical because it doesn't expect a 1hotEncodeing labels like the categorical do
+    # We could simply transform the training labels to 1hotEncoding like this:
+    # x_train = tf.keras.utils.to_categorical(x_train, 10)
     model.compile(optimizer= 'adam', loss= 'sparse_categorical_crossentropy', metrics= 'accuracy')
     model.fit(x_train,y_train, batch_size=64, epochs=3, validation_split=0.2)
     model.evaluate(x_test, y_test, batch_size=64)
