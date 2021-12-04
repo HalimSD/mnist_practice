@@ -6,7 +6,7 @@ from tensorflow.keras.layers import Conv2D, Dense, Input, MaxPool2D, BatchNormal
 # print(tf.__version__)
 # print(tf.config.list_physical_devices())
 
-# building the classification model the sequential way:
+# Building the classification model the sequential way:
 sequential_model = tf.keras.Sequential(
     [
         Input(shape=(28, 28, 1)),
@@ -25,7 +25,7 @@ sequential_model = tf.keras.Sequential(
     ]
 )
 
-# building the classification model the functional way:
+# Building the classification model the functional way:
 def functional_model():
     nn_input = Input(shape=(28, 28, 1))
     x = Conv2D(32, (3, 3), activation='relu')(nn_input)
@@ -46,6 +46,38 @@ def functional_model():
     model = tf.keras.Model(inputs=nn_input, outputs=x)
     return model
 
+# Building the classification model by inheriting from the tf.keras.Model() class:
+class CustomModel(tf.keras.Model):
+    # class instructor
+    def __init__(self):
+        super().__init__()
+        # Creating the model layers:
+        self.conv1 = Conv2D(32, (3, 3), activation='relu')
+        self.conv2 = Conv2D(64, (3, 3), activation='relu')
+        self.maxPool1 = MaxPool2D()
+        self.batchNorm1 = BatchNormalization()
+
+        self.conv3 = Conv2D(128, (3, 3), activation='relu')
+        self.maxPool2 = MaxPool2D()
+        self.batchNorm2 = BatchNormalization()
+
+        self.globalAvgPool1 = GlobalAvgPool2D()
+        self.dense1 = Dense(64, activation='relu')
+        self.dense2 = Dense(10, activation='softmax')
+
+    def call(self, inputs):
+        x = self.conv1(inputs)
+        x = self.conv2(x)
+        x = self.maxPool1(x)
+        x = self.batchNorm1(x)
+        x = self.conv3(x)
+        x = self.maxPool2(x)
+        x = self.batchNorm2(x)
+        x = self.globalAvgPool1(x)
+        x = self.dense1(x)
+        x = self.dense2(x)
+
+        return x
 
 def display_examples(examples, lables):
     plt.figure(figsize=(5, 5))
@@ -59,7 +91,6 @@ def display_examples(examples, lables):
         plt.tight_layout()
         plt.imshow(img, cmap='gray')
     plt.show()
-
 
 if __name__ == '__main__':
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -82,10 +113,12 @@ if __name__ == '__main__':
     x_train = np.expand_dims(x_train, axis=-1)
     x_test = np.expand_dims(x_test, axis=-1)
 
-	# this function call here is to use the functional model
-	# Based on this experiment, the functional model is slower than the sequential one
-    model = functional_model()
+    # this function call here is to use the functional model
+    # Based on this experiment, the functional model is slower than the sequential one
+    # model = functional_model()
 
+    # Instantiating the model calss from the 3rd approch so we can use it the same way
+    model = CustomModel()
     # Useful links for the hyperparameters of compiling a model:
     # Optimizers: https://www.tensorflow.org/api_docs/python/tf/keras/optimizers
     # Loss functions: https://www.tensorflow.org/api_docs/python/tf/keras/losses
